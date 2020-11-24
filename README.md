@@ -11,10 +11,10 @@ this will handle the deployment of files to an AWS S3 bucket/path as well as Git
 
 ## Dependencies
 
-- AWS CLI Version 2: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
--- This is needed to make calls to AWS (make sure the account is configured)
+- AWS CLI Version 2: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html 
+  - This is needed to make calls to AWS (make sure the account is configured)
 - Git
--- This should be installed by default on most Unix systems
+  - This should be installed by default on most Unix systems
 
 ## Installation (Linux, MacOS ONLY)
 **Note:** Please make sure that you have the above dependencies installed/configured!
