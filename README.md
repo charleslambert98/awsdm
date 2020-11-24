@@ -28,7 +28,10 @@ this will handle the deployment of files to an AWS S3 bucket/path as well as Git
 ## Usage
 
 ### Initialization
-1. Stucture the File Path -- There should be two sub-folders: lambda, s3
+1. Stucture the File Path 
+  - There should be two sub-folders
+    - **lambda:** where AWS Lambda files are stored
+    - **s3:** where S3 bucket files are stored
 2. Initalize the git/GitHub repositories
 3. Add remote to the git repository
 
