@@ -1,0 +1,75 @@
+# Just for the Header...
+cols=$( tput cols )
+rows=$( tput lines )
+
+greeting="AWS Distro Manager v1.0.0"
+input_length=${#greeting}
+half_input_length=$(( $input_length / 2 ))
+middle_col=$(( ($cols / 2) - $half_input_length ))
+
+tput clear
+tput cup 0 $middle_col 
+tput bold
+echo $greeting
+tput sgr0
+
+# Handles Pushing to an AWS Lambda function
+aws_push() {
+    cd lambda
+    if [[ -e "index.zip" ]]; then
+        rm index.zip
+    fi
+    echo "Lambda Function:"
+    read function
+    zip -X -r index.zip *
+    git_push
+    aws lambda update-function-code --function-name $function --zip-file fileb://index.zip
+}
+
+# Handles Pushing to an s3 Bucket
+s3_push() {
+    echo "File Path (. for current path): "
+    read fpath
+    echo "S3 Path (ex. lex-storage/path/to/file):"
+    read s3path
+    git_push
+    aws s3 sync $fpath "s3://"$s3path --acl public-read
+}
+
+# Handles Pushing to a Git Repo
+git_push() {
+    echo "Git Commit Message:"
+    read message
+    echo "Git Remote Name:"
+    read remote
+    echo "Git Branch Name:"
+    read branch
+    echo "Pushing to GitHub"
+    git add *
+    git commit -m "$message"
+    git push $remote $branch
+}
+
+# Help Menu Logic and Re-Direct
+if [ ${#@} -ne 0 ] && [ "${@#"--help"}" = "" ] || [ $# -eq 0 ]; then
+    printf -- '\e[1musage\e[0m awsdm [option] \n \n'
+    printf -- '\e[1m--awspush:\e[0m pushes files from a specified directory to an AWS Lambda function and a git repo\n';
+    printf -- '\e[1m--s3push:\e[0m pushes files from a specified directory to an S3 bucket and a git repo\n\n'
+    printf -- '>> '
+    read arg
+    if [ $arg = 'awspush' ]; then
+        aws_push
+    fi;
+    if [ $arg = 's3push' ]; then
+        s3_push
+    fi;
+fi;
+
+# Command Line Argument Logic
+if [ ${#@} -ne 0 ] && [ "${@#"--awspush"}" = "" ]; then
+    aws_push
+fi;
+
+if [ ${#@} -ne 0 ] && [ "${@#"--s3push"}" = "" ]; then
+    s3_push
+fi;
