@@ -22,47 +22,76 @@ aws_push() {
     echo "Lambda Function:"
     read function
     zip -X -r index.zip *
-    git_push
+    git_push $PWD
     aws lambda update-function-code --function-name $function --zip-file fileb://index.zip
+    cd ..
 }
 
 # Handles Pushing to an s3 Bucket
 s3_push() {
-    echo "File Path (. for current path): "
+    echo "File Path (Default: Current Path): "
     read fpath
+    if [[ -z $fpath ]]; then
+        fpath='.'
+    fi;
     echo "S3 Path (ex. lex-storage/path/to/file):"
     read s3path
-    git_push
+    git_push $fpath
     aws s3 sync $fpath "s3://"$s3path --acl public-read
 }
 
 # Handles Pushing to a Git Repo
 git_push() {
-    echo "Git Commit Message:"
-    read message
-    echo "Git Remote Name:"
-    read remote
-    echo "Git Branch Name:"
-    read branch
-    echo "Pushing to GitHub"
-    git add *
-    git commit -m "$message"
-    git push $remote $branch
+    echo "Do you wish to commit and push to GitHub? (y/n)"
+    read -n 1 response
+    if [[ $response == "y" ]]; then
+        echo "\nGit Commit Message (default: 'Pushing to git from awsdm'):"
+        read message
+        if [[ -z $message ]]; then
+            message='Pushing to git from awsdm'
+        fi;
+        echo "\nGit Remote Name (default: 'origin'):"
+        read remote
+        if [[ -z $remote ]]; then
+            remote='origin'
+        fi;
+        echo "\nGit Branch Name (default: 'master'):"
+        read branch
+        if [[ -z $branch ]]; then
+            branch='master'
+        fi;
+        echo "Pushing to GitHub"
+        if [[ -n $fpath ]]; then
+            git add $fpath
+        else
+            echo "No File Path: Adding All Files"
+            git add *
+        fi;
+        git commit -m "$message"
+        git push $remote $branch
+    fi;
 }
 
 # Help Menu Logic and Re-Direct
 if [ ${#@} -ne 0 ] && [ "${@#"--help"}" = "" ] || [ $# -eq 0 ]; then
     printf -- '\e[1musage\e[0m awsdm [option] \n \n'
     printf -- '\e[1m--awspush:\e[0m pushes files from a specified directory to an AWS Lambda function and a git repo\n';
-    printf -- '\e[1m--s3push:\e[0m pushes files from a specified directory to an S3 bucket and a git repo\n\n'
-    printf -- '>> '
-    read arg
-    if [ $arg = 'awspush' ]; then
-        aws_push
-    fi;
-    if [ $arg = 's3push' ]; then
-        s3_push
-    fi;
+    printf -- '\e[1m--s3push:\e[0m pushes files from a specified directory to an S3 bucket and a git repo\n'
+    printf -- '\e[1m--exit:\e[0m quits the program\n\n'
+
+    echo $PWD '>> '
+    while true; do
+        read arg
+        if [ -z $arg ]; then
+            echo $PWD '>> '
+        elif [ $arg = 'awspush' ]; then
+            aws_push
+        elif [ $arg = 's3push' ]; then
+            s3_push
+        elif [ $arg = 'exit' ]; then
+            exit
+        fi;
+    done;
 fi;
 
 # Command Line Argument Logic
