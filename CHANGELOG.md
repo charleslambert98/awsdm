@@ -2,6 +2,11 @@
 
 All notable changes to this project have been and will be noted in this file.
 
+## 1.2.0 - 11/30/2020
+
+### Added
+- Git initialization functionality
+
 ## 1.1.0 - 11/25/2020
 
 ### Added
