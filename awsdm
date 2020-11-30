@@ -29,10 +29,10 @@ aws_push() {
 
 # Handles Pushing to an s3 Bucket
 s3_push() {
-    echo "File Path (Default: Current Path): "
+    echo "File Path (Default: ./s3): "
     read fpath
     if [[ -z $fpath ]]; then
-        fpath='.'
+        fpath='./s3'
     fi;
     echo "S3 Path (ex. lex-storage/path/to/file):"
     read s3path
@@ -45,6 +45,8 @@ git_push() {
     echo "Do you wish to commit and push to GitHub? (y/n)"
     read -n 1 response
     if [[ $response == "y" ]]; then
+        check_git_init
+
         echo "\nGit Commit Message (default: 'Pushing to git from awsdm'):"
         read message
         if [[ -z $message ]]; then
@@ -72,6 +74,21 @@ git_push() {
     fi;
 }
 
+# Handles Git Initialization
+check_git_init() {
+    if [[ ! -e '.git' ]]; then
+        echo "\nNo initialized repository found, initializing git"
+        git init
+        
+        echo "\nRemote Name (default: 'origin'):"
+        read remote
+        echo "\nRemote URL:"
+        read url
+        echo "Adding remote"
+        git remote add $remote $url
+    fi;
+}
+
 # Help Menu Logic and Re-Direct
 if [ ${#@} -ne 0 ] && [ "${@#"--help"}" = "" ] || [ $# -eq 0 ]; then
     printf -- '\e[1musage\e[0m awsdm [option] \n \n'
@@ -79,11 +96,11 @@ if [ ${#@} -ne 0 ] && [ "${@#"--help"}" = "" ] || [ $# -eq 0 ]; then
     printf -- '\e[1m--s3push:\e[0m pushes files from a specified directory to an S3 bucket and a git repo\n'
     printf -- '\e[1m--exit:\e[0m quits the program\n\n'
 
-    echo $PWD '>> '
+    printf '%s >> ' $PWD
     while true; do
         read arg
         if [ -z $arg ]; then
-            echo $PWD '>> '
+            printf '%s >> ' $PWD
         elif [ $arg = 'awspush' ]; then
             aws_push
         elif [ $arg = 's3push' ]; then
