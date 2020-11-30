@@ -1,4 +1,4 @@
-# awsdm - AWS Distrbution Manager v. 1.1.0
+# awsdm - AWS Distrbution Manager v. 1.2.0
 A CLI program to make seamless changes to AWS lambda functions and S3 buckets, with a git connection. This script was created to make for the easy deployment of lambda functions and their dependencies to both AWS Lambda as well as a GitHub repository. The same applies to the S3 bucket file-deployment as well.
 
 ## Features
@@ -35,8 +35,7 @@ Exits the program.
   - There should be two sub-folders
     - **lambda:** where AWS Lambda files are stored
     - **s3:** where S3 bucket files are stored
-2. Initalize the git/GitHub repositories
-3. Add remote to the git repository
+2. That's it!
 
 ### Common Usage
 There are two ways that this program can be used:
@@ -51,5 +50,3 @@ There are two ways that this program can be used:
 
 ## Current Version Notes
 - Will upload all files to the S3 bucket as **readable to the public**
-- Need to have git initialized
-- Need to have git remote added
